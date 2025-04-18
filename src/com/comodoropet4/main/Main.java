@@ -101,17 +101,6 @@ public class Main {
         System.out.println("\n¡Hasta luego! 👋");
     }
 
-    /*private static void mostrarMenu() {
-        System.out.println("\nSeleccione una de las siguientes opciones para realizar una operación: \n");
-
-        System.out.println("1. Sumar (+)");
-        System.out.println("2. Restar (-)");
-        System.out.println("3. Multiplicar (*)");
-        System.out.println("4. Dividir (/)\n");
-
-        System.out.println("5. Salir (🫡)\n");
-    }*/
-
     private static void operar(double[] valoresEntregados, int opcionMenu, String nombreOperacion, char operador) {
         double resultado = 0;
         boolean resultadoValido = true;
