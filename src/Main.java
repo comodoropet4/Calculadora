@@ -1,23 +1,28 @@
+/**
+ * Programa principal de calculadora para consola.
+ *
+ * Este programa demuestra el manejo de menús y flujos de control.
+ *
+ * Autor: Fernando Fernández.
+ */
+
 import java.io.IOException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
-    private static byte opcionMenu = 0;
-    private static int valor1 = 0;
-    private static int valor2 = 0;
-    private static int total = 0;
-
-    private static final Scanner escaner = new Scanner(System.in);
-
     public static void main(String[] args) {
+        Scanner escaner = new Scanner(System.in);
+
+        byte opcionMenu = (byte) 0;
+
         do {
             limpiarPantalla();
-            mostrarEncabezadoCalculadora();
+            mostrarEncabezado();
 
             mostrarMenu();
 
-            try{
+            try {
                 opcionMenu = escaner.nextByte();
             } catch (InputMismatchException excepcionEntradaInvalida) {
                 System.out.println("¡Entrada no válida!");
@@ -28,55 +33,73 @@ public class Main {
             }
 
             limpiarPantalla();
-            mostrarEncabezadoCalculadora();
+            mostrarEncabezado();
 
-            switch (opcionMenu) {
-                case 1:
-                    sumar();
-                    break;
-                case 2:
-                    restar();
-                    break;
-                case 3:
-                    multiplicar();
-                    break;
-                case 4:
-                    dividir();
-                    break;
-                case 5:
-                    despedirse();
-                    break;
-                default:
-                    System.out.println("⛔ ¡Opción equivocada!");
-                    System.out.println("Intenta escoger una opción válida.");
-                    break;
-            }
+            if ((opcionMenu >= 1) && (opcionMenu <= 4)) {
+                String nombreOperacion = "";
+                char operador = '0';
 
-            if (opcionMenu != 5) {
-                System.out.println("\nPresione la tecla Enter/Intro para continuar...");
-
-                try {
-                    System.in.read();
-                } catch (IOException excepcionTecla) {
-                    excepcionTecla.printStackTrace();
+                switch (opcionMenu) {
+                    case 1:
+                        nombreOperacion = "Suma";
+                        operador = '+';
+                        break;
+                    case 2:
+                        nombreOperacion = "Resta";
+                        operador = '-';
+                        break;
+                    case 3:
+                        nombreOperacion = "Multiplicación";
+                        operador = '*';
+                        break;
+                    case 4:
+                        nombreOperacion = "División";
+                        operador = '/';
+                        break;
                 }
+
+                mostrarEncabezado(nombreOperacion);
+
+                int[] valores = obtenerValores(escaner);
+
+                operar(valores, opcionMenu, nombreOperacion, operador);
+
+                presionarEnterParaContinuar();
+            } else if (opcionMenu == 5) {
+                despedirse();
+            } else {
+                System.out.println("⛔ ¡Opción equivocada!");
+                System.out.println("Intenta escoger una opción válida.");
+                break;
             }
         } while (opcionMenu != 5);
+
+        escaner.close();
+    }
+
+    private static void presionarEnterParaContinuar() {
+        System.out.println("\nPresione la tecla Enter/Intro para continuar...");
+
+        try {
+            System.in.read();
+        } catch (IOException excepcionTecla) {
+            excepcionTecla.printStackTrace();
+        }
     }
 
     private static void despedirse() {
-        System.out.println("¡Hasta luego! 👋");
+        System.out.println("\n¡Hasta luego! 👋");
     }
 
     private static void mostrarMenu() {
-        System.out.println("Seleccione una de las siguientes opciones para realizar una operación: \n");
+        System.out.println("\nSeleccione una de las siguientes opciones para realizar una operación: \n");
 
         System.out.println("1. Sumar (+)");
         System.out.println("2. Restar (-)");
         System.out.println("3. Multiplicar (*)");
         System.out.println("4. Dividir (/)\n");
 
-        System.out.println("5. Salir (🫡)");
+        System.out.println("5. Salir (🫡)\n");
     }
 
     private static void limpiarPantalla() {
@@ -85,71 +108,67 @@ public class Main {
         }
     }
 
-    private static void mostrarEncabezadoCalculadora() {
-        System.out.println("Calculadora");
-        System.out.println("===========\n");
+    private static void mostrarEncabezado() {
+        System.out.println("\nCalculadora");
+        System.out.println("===========");
     }
 
-    private static void obtenerValores() {
+    private static void mostrarEncabezado(String nombreOperacion) {
+        System.out.printf("\n%s\n", nombreOperacion);
+    }
+
+    private static int[] obtenerValores(Scanner escanerCreado) {
+        int[] valoresAEntregar = new int[2];
+
         boolean entradaValida = false;
 
         while (entradaValida == false) {
             try {
-                System.out.print("Ingrese el primer valor a evaluar:");
-                valor1 = escaner.nextInt();
+                System.out.print("\nIngrese el primer valor a evaluar: ");
+                valoresAEntregar[0] = escanerCreado.nextInt();
 
-                System.out.print("Ingrese el segundo valor a evaluar:");
-                valor2 = escaner.nextInt();
+                System.out.print("Ingrese el segundo valor a evaluar: ");
+                valoresAEntregar[1] = escanerCreado.nextInt();
 
                 entradaValida = true;
-            } catch (NumberFormatException excepcionNumeroInvalido) {
-                System.out.println("¡Entrada no válida!");
-                System.out.println("Por favor, ingrese un número válido.");
+            } catch (InputMismatchException excepcionNumeroInvalido) {
+                System.out.println("\n¡Entrada no válida!");
+                System.out.println("Por favor, ingrese números válidos.");
+
+                escanerCreado.next();
             }
         }
+
+        return valoresAEntregar;
     }
 
-    private static void sumar() {
-        System.out.println("Suma \n");
+    private static void operar(int[] valoresEntregados, int opcionMenu, String nombreOperacion, char operador) {
+        int resultado = 0;
+        boolean resultadoValido = true;
 
-        obtenerValores();
+        switch (opcionMenu) {
+            case 1:
+                resultado = Calculadora.sumar(valoresEntregados[0], valoresEntregados[1]);
+                break;
+            case 2:
+                resultado = Calculadora.restar(valoresEntregados[0], valoresEntregados[1]);
+                break;
+            case 3:
+                resultado = Calculadora.multiplicar(valoresEntregados[0], valoresEntregados[1]);
+                break;
+            case 4:
+                try {
+                    resultado = Calculadora.dividir(valoresEntregados[0], valoresEntregados[1]);
+                } catch (ArithmeticException excepcionDividirPorCero) {
+                    System.out.println(excepcionDividirPorCero.getMessage());
+                    resultadoValido = false;
+                }
+                break;
+        }
 
-        total = valor1 + valor2;
-
-        System.out.println("\nEl resultado de la operación es el siguiente:");
-        System.out.printf("%d + %d = %d%n", valor1, valor2, total);
-    }
-
-    private static void restar() {
-        System.out.println("Resta \n");
-
-        obtenerValores();
-
-        total = valor1 - valor2;
-
-        System.out.println("\nEl resultado de la operación es el siguiente:");
-        System.out.printf("%d - %d = %d%n", valor1, valor2, total);
-    }
-
-    private static void multiplicar() {
-        System.out.println("Multiplicación \n");
-
-        obtenerValores();
-
-        total = valor1 * valor2;
-
-        System.out.println("\nEl resultado de la operación es el siguiente:");
-        System.out.printf("%d * %d = %d%n", valor1, valor2, total);
-    }
-
-    private static void dividir() {
-        System.out.println("División \n");
-
-        obtenerValores();
-
-        total = valor1 / valor2;
-
-        System.out.println("\nEl resultado de la operación es el siguiente:");
-        System.out.printf("%d / %d = %d%n", valor1, valor2, total);
+        if (resultadoValido == true) {
+            System.out.printf("\nEl resultado de la %s es el siguiente:\n", nombreOperacion.toLowerCase());
+            System.out.printf("%d %c %d = %d\n", valoresEntregados[0], operador, valoresEntregados[1], resultado);
+        }
     }
 }
