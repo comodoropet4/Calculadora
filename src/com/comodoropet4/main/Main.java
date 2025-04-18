@@ -5,22 +5,41 @@
  *
  * Autor: Fernando Fernández.
  */
+package com.comodoropet4.main;
 
-import java.io.IOException;
-import java.util.InputMismatchException;
+import com.comodoropet4.calculadora.Calculadora;
+
+import com.comodoropet4.utilidades.MenuConsola;
+import com.comodoropet4.utilidades.UtilidadesGeneralesConsola;
+import com.comodoropet4.utilidades.UtilidadesEntrada;
+
 import java.util.Scanner;
+import java.util.InputMismatchException;
 
 public class Main {
     public static void main(String[] args) {
         Scanner escaner = new Scanner(System.in);
 
+        String nombreEncabezado = "Calculadora";
+        String textoInstrucciones = "Seleccione una de las siguientes opciones: ";
+
+        String[] opcionesMenu = {
+            "1. Sumar (+)",
+            "2. Restar (-)",
+            "3. Multiplicar (*)",
+            "4. Dividir (/)",
+            "5. Salir (🫡)"
+        };
+
+        MenuConsola menuCalculadora = new MenuConsola(textoInstrucciones, opcionesMenu);
+
         byte opcionMenu = (byte) 0;
 
         do {
-            limpiarPantalla();
-            mostrarEncabezado();
+            UtilidadesGeneralesConsola.limpiarPantalla();
+            UtilidadesGeneralesConsola.mostrarEncabezado(nombreEncabezado);
 
-            mostrarMenu();
+            menuCalculadora.mostrarMenu();
 
             try {
                 opcionMenu = escaner.nextByte();
@@ -32,8 +51,8 @@ public class Main {
                 continue;
             }
 
-            limpiarPantalla();
-            mostrarEncabezado();
+            UtilidadesGeneralesConsola.limpiarPantalla();
+            UtilidadesGeneralesConsola.mostrarEncabezado(nombreEncabezado);
 
             if ((opcionMenu >= 1) && (opcionMenu <= 4)) {
                 String nombreOperacion = "";
@@ -58,40 +77,31 @@ public class Main {
                         break;
                 }
 
-                mostrarEncabezado(nombreOperacion);
+                UtilidadesGeneralesConsola.mostrarSubEncabezado(nombreOperacion);
 
-                int[] valores = obtenerValores(escaner);
+                double[] valores = UtilidadesEntrada.obtenerValores(escaner);
 
                 operar(valores, opcionMenu, nombreOperacion, operador);
 
-                presionarEnterParaContinuar();
+                UtilidadesGeneralesConsola.presionarEnterParaContinuar();
             } else if (opcionMenu == 5) {
                 despedirse();
             } else {
                 System.out.println("⛔ ¡Opción equivocada!");
                 System.out.println("Intenta escoger una opción válida.");
-                break;
+
+                UtilidadesGeneralesConsola.presionarEnterParaContinuar();
             }
         } while (opcionMenu != 5);
 
         escaner.close();
     }
 
-    private static void presionarEnterParaContinuar() {
-        System.out.println("\nPresione la tecla Enter/Intro para continuar...");
-
-        try {
-            System.in.read();
-        } catch (IOException excepcionTecla) {
-            excepcionTecla.printStackTrace();
-        }
-    }
-
     private static void despedirse() {
         System.out.println("\n¡Hasta luego! 👋");
     }
 
-    private static void mostrarMenu() {
+    /*private static void mostrarMenu() {
         System.out.println("\nSeleccione una de las siguientes opciones para realizar una operación: \n");
 
         System.out.println("1. Sumar (+)");
@@ -100,50 +110,10 @@ public class Main {
         System.out.println("4. Dividir (/)\n");
 
         System.out.println("5. Salir (🫡)\n");
-    }
+    }*/
 
-    private static void limpiarPantalla() {
-        for (int lineaConsola = 0; lineaConsola < 50; lineaConsola++) {
-            System.out.println();
-        }
-    }
-
-    private static void mostrarEncabezado() {
-        System.out.println("\nCalculadora");
-        System.out.println("===========");
-    }
-
-    private static void mostrarEncabezado(String nombreOperacion) {
-        System.out.printf("\n%s\n", nombreOperacion);
-    }
-
-    private static int[] obtenerValores(Scanner escanerCreado) {
-        int[] valoresAEntregar = new int[2];
-
-        boolean entradaValida = false;
-
-        while (entradaValida == false) {
-            try {
-                System.out.print("\nIngrese el primer valor a evaluar: ");
-                valoresAEntregar[0] = escanerCreado.nextInt();
-
-                System.out.print("Ingrese el segundo valor a evaluar: ");
-                valoresAEntregar[1] = escanerCreado.nextInt();
-
-                entradaValida = true;
-            } catch (InputMismatchException excepcionNumeroInvalido) {
-                System.out.println("\n¡Entrada no válida!");
-                System.out.println("Por favor, ingrese números válidos.");
-
-                escanerCreado.next();
-            }
-        }
-
-        return valoresAEntregar;
-    }
-
-    private static void operar(int[] valoresEntregados, int opcionMenu, String nombreOperacion, char operador) {
-        int resultado = 0;
+    private static void operar(double[] valoresEntregados, int opcionMenu, String nombreOperacion, char operador) {
+        double resultado = 0;
         boolean resultadoValido = true;
 
         switch (opcionMenu) {
@@ -167,8 +137,12 @@ public class Main {
         }
 
         if (resultadoValido == true) {
+            String resultadoMostrado = UtilidadesGeneralesConsola.darFormatoANumero(resultado);
+            String valorMostrado1 = UtilidadesGeneralesConsola.darFormatoANumero(valoresEntregados[0]);
+            String valorMostrado2 = UtilidadesGeneralesConsola.darFormatoANumero(valoresEntregados[1]);
+
             System.out.printf("\nEl resultado de la %s es el siguiente:\n", nombreOperacion.toLowerCase());
-            System.out.printf("%d %c %d = %d\n", valoresEntregados[0], operador, valoresEntregados[1], resultado);
+            System.out.printf("%s %c %s = %s\n", valorMostrado1, operador, valorMostrado2, resultadoMostrado);
         }
     }
 }
